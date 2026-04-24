@@ -1,51 +1,28 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, ScrollView } from 'react-native';
-import PontoTuristicoCard from './components/PontoTuristicoCard';
+import 'react-native-gesture-handler';
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+
+import ListaPontosTuristicos from './screens/ListaPontosTuristicos';
+import DetalhesPontoTuristico from './screens/DetalhesPontoTuristico';
+
+const Stack = createStackNavigator();
 
 export default function App() {
   return (
-    <ScrollView style={styles.scrollViewContainer}>
-      <View style={styles.container}>
-        <Text style={styles.mainTitle}>Conheça Curitiba!</Text>
-
-        <PontoTuristicoCard
-          nome="Jardim Botânico"
-          descricao="Um dos mais famosos cartões-postais da cidade."
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="ListaPontos">
+        <Stack.Screen
+          name="ListaPontos"
+          component={ListaPontosTuristicos}
+          options={{ title: 'Pontos Turísticos' }}
         />
-        <PontoTuristicoCard
-          nome="Ópera de Arame"
-          descricao="Teatro com estrutura tubular e teto transparente, em meio à natureza."
+        <Stack.Screen
+          name="DetalhesPonto"
+          component={DetalhesPontoTuristico}
+          options={{ title: 'Detalhes do Ponto' }}
         />
-        <PontoTuristicoCard
-          nome="Parque Tanguá"
-          descricao="Antiga pedreira transformada em parque com cascata e mirante."
-        />
-        <PontoTuristicoCard
-          nome="Museu Oscar Niemeyer"
-          descricao="Conhecido como Museu do Olho, com arte moderna e contemporânea."
-        />
-
-        <StatusBar style="auto" />
-      </View>
-    </ScrollView>
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  scrollViewContainer: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-    paddingTop: 50,
-  },
-  mainTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 20,
-    color: '#333',
-  },
-});
