@@ -1,66 +1,81 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ActivityIndicator, FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-
-const pontos = [
-  {
-    id: '1',
-    nome: 'Jardim Botânico',
-    descricao: 'Um dos mais famosos cartões-postais da cidade, com belas estufas em estilo art nouveau.',
-  },
-  {
-    id: '2',
-    nome: 'Ópera de Arame',
-    descricao: 'Teatro com estrutura tubular e teto transparente, em meio à natureza.',
-  },
-  {
-    id: '3',
-    nome: 'Parque Tanguá',
-    descricao: 'Antiga pedreira transformada em parque com cascata e mirante.',
-  },
-  {
-    id: '4',
-    nome: 'Museu Oscar Niemeyer',
-    descricao: 'Conhecido como Museu do Olho, com arte moderna e contemporânea.',
-  },
-];
+import PontoTuristicoCard from '../components/PontoTuristicoCard';
+import api from '../services/api';
 
 const ListaPontosTuristicos = () => {
   const navigation = useNavigation();
+  const [pontosTuristicos, setPontosTuristicos] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchPontosTuristicos = async () => {
+      try {
+        const response = await api.get('/posts');
+        const dadosAdaptados = response.data.map(item => ({
+          id: String(item.id),
+          nome: item.title,
+          descricao: item.body,
+        }));
+        setPontosTuristicos(dadosAdaptados);
+      } catch (err) {
+        console.error("Erro ao buscar dados:", err);
+        setError("Não foi possível carregar os pontos turísticos.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPontosTuristicos();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#0000ff" />
+        <Text style={styles.loadingText}>Carregando pontos turísticos...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>{error}</Text>
+      </View>
+    );
+  }
 
   return (
-    <ScrollView style={styles.scrollView}>
-      <View style={styles.container}>
-        <Text style={styles.mainTitle}>Conheça Curitiba!</Text>
-
-        {pontos.map(ponto => (
-          <TouchableOpacity
-            key={ponto.id}
-            style={styles.card}
+    <View style={styles.container}>
+      <Text style={styles.mainTitle}>Pontos Turísticos</Text>
+      <FlatList
+        data={pontosTuristicos}
+        keyExtractor={(item) => item.id}
+        style={{ flex: 1 }}
+        renderItem={({ item }) => (
+          <PontoTuristicoCard
+            nome={item.nome}
+            descricao={item.descricao}
             onPress={() => navigation.navigate('DetalhesPonto', {
-              pontoId: ponto.id,
-              nomePonto: ponto.nome,
-              descricaoPonto: ponto.descricao,
+              pontoId: item.id,
+              nomePonto: item.nome,
+              descricaoPonto: item.descricao,
             })}
-          >
-            <Text style={styles.titulo}>{ponto.nome}</Text>
-            <Text style={styles.descricao}>{ponto.descricao}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-    </ScrollView>
+          />
+        )}
+      />
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  scrollView: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
   container: {
     flex: 1,
-    paddingTop: 20,
-    paddingBottom: 30,
+    backgroundColor: '#f5f5f5',
+    paddingTop: 50,
   },
   mainTitle: {
     fontSize: 28,
@@ -69,27 +84,28 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     color: '#333',
   },
-  card: {
-    backgroundColor: '#fff',
-    padding: 15,
-    marginVertical: 10,
-    marginHorizontal: 20,
-    borderRadius: 8,
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
   },
-  titulo: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 5,
-    color: '#333',
-  },
-  descricao: {
-    fontSize: 14,
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
     color: '#666',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#ffe0e0',
+  },
+  errorText: {
+    fontSize: 16,
+    color: 'red',
+    textAlign: 'center',
+    marginHorizontal: 20,
   },
 });
 
