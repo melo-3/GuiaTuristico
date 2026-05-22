@@ -1,17 +1,36 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useFavorites } from '../context/FavoritesContext';
 
-const PontoTuristicoCard = (props) => {
+const PontoTuristicoCard = ({ ponto, onPress }) => {
+  const { isFavorite, toggleFavorite } = useFavorites();
+
+  const favoriteIconName = isFavorite(ponto.id) ? 'heart' : 'heart-outline';
+  const favoriteIconColor = isFavorite(ponto.id) ? 'red' : 'gray';
+
   return (
-    <TouchableOpacity style={styles.card} onPress={props.onPress}>
-      <Text style={styles.titulo}>{props.nome}</Text>
-      <Text style={styles.descricao}>{props.descricao}</Text>
+    <TouchableOpacity onPress={onPress} style={styles.touchable}>
+      <View style={styles.card}>
+        <View style={styles.infoContainer}>
+          <Text style={styles.titulo}>{ponto.nome}</Text>
+          <Text style={styles.descricao}>{ponto.descricao}</Text>
+        </View>
+        <TouchableOpacity onPress={() => toggleFavorite(ponto.id)} style={styles.favoriteButton}>
+          <Ionicons name={favoriteIconName} size={24} color={favoriteIconColor} />
+        </TouchableOpacity>
+      </View>
     </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
+  touchable: {
+    width: '100%',
+  },
   card: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: '#fff',
     padding: 15,
     marginVertical: 10,
@@ -23,6 +42,10 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
   },
+  infoContainer: {
+    flex: 1,
+    marginRight: 10,
+  },
   titulo: {
     fontSize: 20,
     fontWeight: 'bold',
@@ -32,6 +55,9 @@ const styles = StyleSheet.create({
   descricao: {
     fontSize: 14,
     color: '#666',
+  },
+  favoriteButton: {
+    padding: 5,
   },
 });
 

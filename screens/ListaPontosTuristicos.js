@@ -18,6 +18,7 @@ const ListaPontosTuristicos = () => {
           id: String(item.id),
           nome: item.title,
           descricao: item.body,
+          detalhesCompletos: item.body + ' ' + item.title,
         }));
         setPontosTuristicos(dadosAdaptados);
       } catch (err) {
@@ -30,6 +31,10 @@ const ListaPontosTuristicos = () => {
 
     fetchPontosTuristicos();
   }, []);
+
+  const handlePontoPress = (ponto) => {
+    navigation.navigate('DetalhesPonto', { pontoDetalhes: ponto });
+  };
 
   if (isLoading) {
     return (
@@ -54,16 +59,10 @@ const ListaPontosTuristicos = () => {
       <FlatList
         data={pontosTuristicos}
         keyExtractor={(item) => item.id}
-        style={{ flex: 1 }}
         renderItem={({ item }) => (
           <PontoTuristicoCard
-            nome={item.nome}
-            descricao={item.descricao}
-            onPress={() => navigation.navigate('DetalhesPonto', {
-              pontoId: item.id,
-              nomePonto: item.nome,
-              descricaoPonto: item.descricao,
-            })}
+            ponto={item}
+            onPress={() => handlePontoPress(item)}
           />
         )}
       />
